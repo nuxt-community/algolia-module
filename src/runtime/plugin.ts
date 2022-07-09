@@ -1,4 +1,6 @@
 import { SearchClient } from 'algoliasearch/lite'
+import { createNodeHttpRequester } from '@algolia/requester-node-http';
+import { createBrowserXhrRequester } from '@algolia/requester-browser-xhr';
 import { defineNuxtPlugin, useRuntimeConfig } from '#imports'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
@@ -10,7 +12,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     ? await import('algoliasearch/dist/algoliasearch-lite.esm.browser').then(lib => lib.default || lib)
     : await import('algoliasearch/dist/algoliasearch.esm.browser').then(lib => lib.default || lib)
 
-  const algoliaSearchClient: SearchClient = algoliasearch(applicationId, apiKey)
+  const algoliaSearchClient: SearchClient = algoliasearch(applicationId, apiKey, {
+    requester: process.server ? createNodeHttpRequester() : createBrowserXhrRequester()
+  })
 
   nuxtApp.provide('algolia', algoliaSearchClient)
 
